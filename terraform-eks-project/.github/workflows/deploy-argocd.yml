@@ -1,0 +1,35 @@
+name: Deploy ArgoCD and Sample App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-argocd:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.27.0'
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Update kubeconfig
+        run: aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name <your-cluster-name>
+
+      - name: Deploy ArgoCD using Terraform
+        run: terraform -chdir=modules/argocd init && terraform -chdir=modules/argocd apply -auto-approve
+
+      - name: Apply ArgoCD Application Manifest
+        run: kubectl apply -f manifests/sample-app.yaml
