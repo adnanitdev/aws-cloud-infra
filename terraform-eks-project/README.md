@@ -15,6 +15,60 @@ This project automates the deployment of an Amazon EKS cluster within a VPC that
 
 ## Deployment Instructions
 
+### Backend Configuration
+
+This project uses an S3 bucket and DynamoDB table for Terraform state management. Follow the steps below to configure the backend:
+
+#### Step 1: Create an S3 Bucket
+
+Run the following AWS CLI command to create an S3 bucket for storing the Terraform state. Replace `<your-bucket-name>` with a unique bucket name.
+
+```bash
+aws s3api create-bucket --bucket <your-bucket-name> --region <your-region> --create-bucket-configuration LocationConstraint=<your-region>
+```
+
+Enable versioning on the bucket to keep a history of your state files:
+
+```bash
+aws s3api put-bucket-versioning --bucket <your-bucket-name> --versioning-configuration Status=Enabled
+```
+
+#### Step 2: Create a DynamoDB Table
+
+Run the following command to create a DynamoDB table for state locking:
+
+```bash
+aws dynamodb create-table \
+    --table-name <your-dynamodb-table-name> \
+    --attribute-definitions AttributeName=LockID,AttributeType=S \
+    --key-schema AttributeName=LockID,KeyType=HASH \
+    --billing-mode PAY_PER_REQUEST
+```
+
+#### Step 3: Update the `backend.tf` File
+
+Update the `backend.tf` file in the project to use the S3 bucket and DynamoDB table:
+
+```hcl
+terraform {
+  backend "s3" {
+    bucket         = "<your-bucket-name>"
+    key            = "terraform/state"
+    region         = "<your-region>"
+    dynamodb_table = "<your-dynamodb-table-name>"
+    encrypt        = true
+  }
+}
+```
+
+#### Step 4: Initialize the Backend
+
+Run the following command to initialize the backend:
+
+```bash
+terraform init
+```
+
 ### Using GitHub Actions
 
 1. **Create a GitHub Repository**: Push your code to a GitHub repository.
