@@ -1,6 +1,6 @@
 # Terraform EKS Project
 
-This project automates the deployment of an Amazon EKS cluster within a VPC that includes both public and private subnets. The infrastructure is managed using Terraform and can be deployed using GitHub Actions. Also once the infra is deployed, argocd along with a sample application can also be deployed for full automated gitops arch.
+This project automates the deployment of an Amazon EKS cluster within a VPC that includes both public and private subnets. The infrastructure is managed using Terraform and can be deployed using GitHub Actions. Also once the infra is deployed, argocd along with a sample application can also be deployed for fully automated gitops architecture.
 
 ## Project Structure
 
